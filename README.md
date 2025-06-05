@@ -201,8 +201,8 @@ municipal-library-system/
 8. Multi-language support
 
 ## Contributors
-- Student Name: [Alexandros Liakopoulos]
-- Student ID: [2121384]
+- Student Name: Alexandros Liakopoulos
+- Student ID: 2121384
 - Course: SWE6002 Enterprise Systems Development
 - Institution: University of Bolton / NYC
 - Academic Year: 2024/2025

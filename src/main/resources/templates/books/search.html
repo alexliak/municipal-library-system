@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/header :: headerSimple}">
+    <title>Search Books - Library Management System</title>
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul th:replace="fragments/sidebar :: sidebar"></ul>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav th:replace="fragments/navbar :: navbar"></nav>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">Search Books</h1>
+
+                    <!-- Search Form -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Advanced Search</h6>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/books}" method="get">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="title">Title</label>
+                                            <input type="text" class="form-control" id="title" name="title" 
+                                                   placeholder="Enter book title">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="author">Author</label>
+                                            <input type="text" class="form-control" id="author" name="author" 
+                                                   placeholder="Enter author name">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="isbn">ISBN</label>
+                                            <input type="text" class="form-control" id="isbn" name="isbn" 
+                                                   placeholder="Enter ISBN">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="genre">Genre</label>
+                                            <select class="form-control" id="genre" name="genre">
+                                                <option value="">All Genres</option>
+                                                <option th:each="g : ${genres}" th:value="${g}" th:text="${g}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="availability">Availability</label>
+                                            <select class="form-control" id="availability" name="availability">
+                                                <option value="">All Books</option>
+                                                <option value="available">Available Only</option>
+                                                <option value="unavailable">Unavailable Only</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="search">Quick Search</label>
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           placeholder="Search by title, author, ISBN, or genre...">
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                    <a th:href="@{/books}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Reset
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Popular Searches -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Popular Searches</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6 class="font-weight-bold">By Genre</h6>
+                                    <ul class="list-unstyled">
+                                        <li><a th:href="@{/books(genre='Fiction')}">Fiction</a></li>
+                                        <li><a th:href="@{/books(genre='Science Fiction')}">Science Fiction</a></li>
+                                        <li><a th:href="@{/books(genre='Mystery')}">Mystery</a></li>
+                                        <li><a th:href="@{/books(genre='Romance')}">Romance</a></li>
+                                        <li><a th:href="@{/books(genre='Non-Fiction')}">Non-Fiction</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="font-weight-bold">New Arrivals</h6>
+                                    <ul class="list-unstyled">
+                                        <li><a th:href="@{/books/new?days=7}">Last 7 days</a></li>
+                                        <li><a th:href="@{/books/new?days=30}">Last 30 days</a></li>
+                                        <li><a th:href="@{/books/new?days=90}">Last 90 days</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="font-weight-bold">Popular Books</h6>
+                                    <ul class="list-unstyled">
+                                        <li><a th:href="@{/books/popular}">Most Borrowed</a></li>
+                                        <li><a th:href="@{/books/rated}">Highest Rated</a></li>
+                                        <li><a th:href="@{/books/available}">Available Now</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer th:replace="fragments/footer :: footer"></footer>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/sb-admin-2.min.js"></script>
+
+</body>
+
+</html>

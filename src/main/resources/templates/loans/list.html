@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <div th:replace="~{fragments/header :: header('Loans')}"></div>
+    <title>Loan Management - Library Management System</title>
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Loan Management</h1>
+                        <div>
+                            <a th:href="@{/loans/checkout}" class="btn btn-sm btn-primary shadow-sm" 
+                               sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+                                <i class="fas fa-plus fa-sm text-white-50"></i> New Checkout
+                            </a>
+                            <a th:href="@{/reports/loans}" class="btn btn-sm btn-success shadow-sm ml-2">
+                                <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div th:if="${warningMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <span th:text="${warningMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row">
+
+                        <!-- Active Loans Card -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Active Loans</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalActive ?: 0}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-book-open fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Overdue Loans Card -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                Overdue Loans</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalOverdue ?: 0}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="mb-3">
+                        <a th:href="@{/loans}" class="btn btn-sm" 
+                           th:classappend="${pageTitle == null} ? 'btn-primary' : 'btn-outline-primary'">
+                            All Loans
+                        </a>
+                        <a th:href="@{/loans/overdue}" class="btn btn-sm ml-2" 
+                           th:classappend="${pageTitle == 'Overdue Loans'} ? 'btn-danger' : 'btn-outline-danger'">
+                            Overdue Only
+                        </a>
+                        <a th:href="@{/loans/due-soon}" class="btn btn-sm ml-2 btn-outline-warning">
+                            Due Soon
+                        </a>
+                    </div>
+
+                    <!-- DataTables Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary" th:text="${pageTitle ?: 'All Loans'}">All Loans</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Member</th>
+                                            <th>Book</th>
+                                            <th>ISBN</th>
+                                            <th>Loan Date</th>
+                                            <th>Due Date</th>
+                                            <th>Return Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Member</th>
+                                            <th>Book</th>
+                                            <th>ISBN</th>
+                                            <th>Loan Date</th>
+                                            <th>Due Date</th>
+                                            <th>Return Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        <tr th:each="loan : ${loans}">
+                                            <td th:text="${loan.loanId}">1</td>
+                                            <td>
+                                                <a th:href="@{/users/{id}(id=${loan.user.userId})}" 
+                                                   th:text="${loan.user.fullName ?: loan.user.username}">Member Name</a>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/books/{isbn}(isbn=${loan.book.isbn})}" 
+                                                   th:text="${loan.book.title}">Book Title</a>
+                                            </td>
+                                            <td th:text="${loan.book.isbn}">ISBN</td>
+                                            <td th:text="${#temporals.format(loan.loanDate, 'dd/MM/yyyy')}">Loan Date</td>
+                                            <td th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}"
+                                                th:classappend="${loan.status.name() == 'OVERDUE'} ? 'text-danger font-weight-bold' : ''">Due Date</td>
+                                            <td th:text="${loan.returnDate != null ? #temporals.format(loan.returnDate, 'dd/MM/yyyy') : '-'}">Return Date</td>
+                                            <td>
+                                                <span class="badge" 
+                                                      th:classappend="${loan.status.name() == 'ACTIVE'} ? 'badge-primary' : 
+                                                                     (${loan.status.name() == 'RETURNED'} ? 'badge-success' : 
+                                                                     (${loan.status.name() == 'OVERDUE'} ? 'badge-danger' : 'badge-warning'))"
+                                                      th:text="${loan.status}">Status</span>
+                                            </td>
+                                            <td>
+                                                <div th:if="${loan.status.name() == 'ACTIVE' or loan.status.name() == 'OVERDUE'}">
+                                                    <form th:action="@{/loans/return/{loanId}(loanId=${loan.loanId})}" 
+                                                          method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-success btn-circle btn-sm" 
+                                                                title="Mark as Returned">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <form th:if="${loan.status.name() == 'ACTIVE'}"
+                                                          th:action="@{/loans/overdue/{loanId}(loanId=${loan.loanId})}" 
+                                                          method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-warning btn-circle btn-sm" 
+                                                                title="Mark as Overdue">
+                                                            <i class="fas fa-exclamation"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                                <span th:if="${loan.status.name() == 'RETURNED' or loan.status.name() == 'LOST'}" 
+                                                      class="text-muted">-</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div th:if="${#lists.isEmpty(loans)}" class="text-center py-4">
+                                <p class="text-muted">No loans found.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div th:replace="~{fragments/logout-modal :: logout-modal}"></div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="/js/demo/datatables-demo.js"></script>
+
+</body>
+
+</html>

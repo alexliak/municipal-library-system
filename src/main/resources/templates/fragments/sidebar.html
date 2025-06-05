@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <!-- Sidebar Fragment -->
+    <ul th:fragment="sidebar" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/dashboard}">
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">Municipal Library</div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item active">
+            <a class="nav-link" th:href="@{/dashboard}">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Library Management
+        </div>
+
+        <!-- Nav Item - Books Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBooks"
+                aria-expanded="true" aria-controls="collapseBooks">
+                <i class="fas fa-fw fa-book"></i>
+                <span>Books</span>
+            </a>
+            <div id="collapseBooks" class="collapse" aria-labelledby="headingBooks" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Book Management:</h6>
+                    <a class="collapse-item" th:href="@{/books}">All Books</a>
+                    <a class="collapse-item" th:href="@{/books/add}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">Add New Book</a>
+                    <a class="collapse-item" th:href="@{/books/search}">Search Books</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Authors -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAuthors"
+                aria-expanded="true" aria-controls="collapseAuthors">
+                <i class="fas fa-fw fa-user-edit"></i>
+                <span>Authors</span>
+            </a>
+            <div id="collapseAuthors" class="collapse" aria-labelledby="headingAuthors" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Author Management:</h6>
+                    <a class="collapse-item" th:href="@{/authors}">All Authors</a>
+                    <a class="collapse-item" th:href="@{/authors/add}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">Add New Author</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Loans -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLoans"
+                aria-expanded="true" aria-controls="collapseLoans">
+                <i class="fas fa-fw fa-handshake"></i>
+                <span>Loans</span>
+            </a>
+            <div id="collapseLoans" class="collapse" aria-labelledby="headingLoans" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Loan Management:</h6>
+                    <a class="collapse-item" th:href="@{/loans}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">All Loans</a>
+                    <a class="collapse-item" th:href="@{/loans/checkout}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">Checkout Book</a>
+                    <a class="collapse-item" th:href="@{/loans/my-loans}" sec:authorize="hasRole('MEMBER')">My Loans</a>
+                    <a class="collapse-item" th:href="@{/loans/overdue}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">Overdue Books</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Nav Item - Users (Admin Only) -->
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
+                aria-expanded="true" aria-controls="collapseUsers">
+                <i class="fas fa-fw fa-users"></i>
+                <span>Users</span>
+            </a>
+            <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">User Management:</h6>
+                    <a class="collapse-item" th:href="@{/users}">All Users</a>
+                    <a class="collapse-item" th:href="@{/users/register}" sec:authorize="hasRole('ADMIN')">Register New User</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+
+        <!-- Heading -->
+        <div class="sidebar-heading" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+            Reports
+        </div>
+
+        <!-- Nav Item - Reports -->
+        <li class="nav-item" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
+                aria-expanded="true" aria-controls="collapseReports">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>Reports</span>
+            </a>
+            <div id="collapseReports" class="collapse" aria-labelledby="headingReports" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header">Analytics & Reports:</h6>
+                    <a class="collapse-item" th:href="@{/reports/dashboard}">Analytics Dashboard</a>
+                    <a class="collapse-item" th:href="@{/reports/inventory}">Inventory Report</a>
+                    <a class="collapse-item" th:href="@{/reports/members}">Member Statistics</a>
+                    <a class="collapse-item" th:href="@{/reports/books}">Book Statistics</a>
+                    <a class="collapse-item" th:href="@{/reports/notifications}">Notifications</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- Member-specific Menu Items -->
+        <div sec:authorize="hasRole('MEMBER')">
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">
+                My Account
+            </div>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/users/profile}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/loans/my-loans}">
+                    <i class="fas fa-fw fa-book-reader"></i>
+                    <span>My Loans</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/loans/history}">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Loan History</span>
+                </a>
+            </li>
+        </div>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+        <!-- Sidebar Message (Optional) -->
+        <div class="sidebar-card d-none d-lg-flex" sec:authorize="hasRole('MEMBER')">
+            <img class="sidebar-card-illustration mb-2" th:src="@{/img/undraw_reading.svg}" alt="Reading">
+            <p class="text-center mb-2"><strong>Happy Reading!</strong></p>
+            <p class="small text-center">Explore our collection of books and discover your next great read!</p>
+        </div>
+    </ul>
+</body>
+</html>

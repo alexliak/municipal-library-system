@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Notifications - Municipal Library</title>
+
+    <!-- Custom fonts for this template-->
+    <link th:href="@{/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link th:href="@{/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">System Notifications</h1>
+
+                    <!-- Due Soon Alerts -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-warning">
+                                <i class="fas fa-clock"></i> Books Due Soon
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${dueSoon != null and !dueSoon.isEmpty()}">
+                                <div class="alert alert-warning" th:each="alert : ${dueSoon}">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <span th:text="${alert}">Alert message</span>
+                                </div>
+                            </div>
+                            <div th:if="${dueSoon == null or dueSoon.isEmpty()}" class="text-center text-muted">
+                                <i class="fas fa-check-circle fa-3x mb-3"></i>
+                                <p>No books due in the next 3 days</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overdue Notifications -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-danger">
+                                <i class="fas fa-exclamation-triangle"></i> Overdue Books
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${overdue != null and !overdue.isEmpty()}">
+                                <div class="alert alert-danger" th:each="notification : ${overdue}">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span th:text="${notification}">Overdue notification</span>
+                                </div>
+                            </div>
+                            <div th:if="${overdue == null or overdue.isEmpty()}" class="text-center text-success">
+                                <i class="fas fa-check-circle fa-3x mb-3"></i>
+                                <p>No overdue books!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Arrivals -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-info">
+                                <i class="fas fa-plus-circle"></i> New Arrivals This Week
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${newArrivals != null and !newArrivals.isEmpty()}">
+                                <div class="alert alert-info" th:each="arrival : ${newArrivals}">
+                                    <i class="fas fa-book"></i>
+                                    <span th:text="${arrival}">New arrival</span>
+                                </div>
+                            </div>
+                            <div th:if="${newArrivals == null or newArrivals.isEmpty()}" class="text-center text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                <p>No new books added this week</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div th:replace="~{fragments/logout-modal :: logout-modal}"></div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
+    <script th:src="@{/js/sb-admin-2.min.js}"></script>
+</body>
+</html>

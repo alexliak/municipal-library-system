@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <div th:replace="~{fragments/header :: headerSimple}"></div>
+    <title th:text="${author.name + ' - Library Management System'}">Author Details</title>
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Author Details</h1>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/authors}">Authors</a></li>
+                                <li class="breadcrumb-item active" th:text="${author.name}">Author Name</li>
+                            </ol>
+                        </nav>
+                    </div>
+
+                    <div class="row">
+                        <!-- Author Info Card -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="card shadow">
+                                <div class="card-body text-center">
+                                    <img th:if="${author.photoUrl}" 
+                                         th:src="${author.photoUrl}" 
+                                         class="img-fluid rounded-circle mb-3" 
+                                         style="max-width: 200px; height: 200px; object-fit: cover;"
+                                         th:alt="${author.name}">
+                                    <div th:unless="${author.photoUrl}">
+                                        <i class="fas fa-user-circle fa-5x text-gray-400 mb-3"></i>
+                                    </div>
+                                    <h4 th:text="${author.name}" class="font-weight-bold">Author Name</h4>
+                                    
+                                    <!-- Author Details -->
+                                    <table class="table table-borderless text-left mt-3">
+                                        <tr th:if="${author.nationality}">
+                                            <th scope="row">Nationality:</th>
+                                            <td th:text="${author.nationality}">Nationality</td>
+                                        </tr>
+                                        <tr th:if="${author.birthDate}">
+                                            <th scope="row">Born:</th>
+                                            <td th:text="${#temporals.format(author.birthDate, 'MMMM d, yyyy')}">Birth Date</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Books:</th>
+                                            <td>
+                                                <span class="badge badge-primary" th:text="${#lists.size(books)}">0</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="card-footer" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+                                    <a th:href="@{/authors/edit/{id}(id=${author.authorId})}" 
+                                       class="btn btn-warning btn-block mb-2">
+                                        <i class="fas fa-edit"></i> Edit Author
+                                    </a>
+                                    <form th:action="@{/authors/delete/{id}(id=${author.authorId})}" 
+                                          method="post"
+                                          onsubmit="return confirm('Are you sure you want to delete this author? This will not delete their books.');">
+                                        <button type="submit" class="btn btn-danger btn-block">
+                                            <i class="fas fa-trash"></i> Delete Author
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Author Biography and Books -->
+                        <div class="col-lg-8">
+                            <!-- Biography -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-info-circle"></i> Biography
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p th:text="${author.biography ?: 'No biography available.'}" class="mb-0">Biography text</p>
+                                </div>
+                            </div>
+
+                            <!-- Books by this Author -->
+                            <div class="card shadow">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <i class="fas fa-book"></i> Books by <span th:text="${author.name}">Author</span>
+                                    </h6>
+                                    <a th:href="@{/books/add}" class="btn btn-sm btn-primary" 
+                                       sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+                                        <i class="fas fa-plus fa-sm"></i> Add Book
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${!#lists.isEmpty(books)}" class="row">
+                                        <div th:each="book : ${books}" class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">
+                                                        <a th:href="@{/books/{isbn}(isbn=${book.isbn})}" 
+                                                           th:text="${book.title}">Book Title</a>
+                                                    </h6>
+                                                    <p class="card-text">
+                                                        <small class="text-muted">
+                                                            <strong>ISBN:</strong> <span th:text="${book.isbn}">ISBN</span><br>
+                                                            <strong>Genre:</strong> <span th:text="${book.genre ?: 'Not specified'}">Genre</span><br>
+                                                            <strong>Published:</strong> 
+                                                            <span th:text="${book.publicationDate != null ? #temporals.format(book.publicationDate, 'yyyy') : 'Unknown'}">Year</span>
+                                                        </small>
+                                                    </p>
+                                                    <div>
+                                                        <span class="badge" 
+                                                              th:classappend="${book.availableCopies > 0} ? 'badge-success' : 'badge-danger'">
+                                                            <span th:if="${book.availableCopies > 0}">
+                                                                Available (<span th:text="${book.availableCopies}">0</span>)
+                                                            </span>
+                                                            <span th:unless="${book.availableCopies > 0}">Not Available</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${#lists.isEmpty(books)}" class="text-center text-muted py-4">
+                                        <p>No books found for this author.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div th:replace="~{fragments/logout-modal :: logout-modal}"></div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/sb-admin-2.min.js"></script>
+
+</body>
+
+</html>

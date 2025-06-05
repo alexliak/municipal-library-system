@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SHA-256 Hash Test</title>
+</head>
+<body>
+    <h1>SHA-256 Hash Generator</h1>
+    <input type="text" id="password" placeholder="Enter password">
+    <button onclick="generateHash()">Generate Hash</button>
+    <div id="result"></div>
+    
+    <script>
+    async function generateHash() {
+        const password = document.getElementById('password').value;
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        document.getElementById('result').innerHTML = `
+            <p><strong>Password:</strong> ${password}</p>
+            <p><strong>SHA-256:</strong> ${hashHex}</p>
+        `;
+        
+        console.log(`knownHashes.put("${hashHex}", "${password}");`);
+    }
+    
+    // Auto-generate for known passwords
+    window.onload = async function() {
+        const passwords = ['admin123', 'librarian123', 'member123'];
+        console.log('=== SHA-256 Hashes for PasswordHashFilter ===');
+        
+        for (const pwd of passwords) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(pwd);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            console.log(`// ${pwd}`);
+            console.log(`knownHashes.put("${hashHex}", "${pwd}");`);
+            console.log('');
+        }
+    }
+    </script>
+</body>
+</html>

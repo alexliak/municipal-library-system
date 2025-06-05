@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: header('My Loans')}"></head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
+                
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">My Loans</h1>
+
+                    <!-- Summary Cards -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Active Loans</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" 
+                                                 th:text="${activeLoans.size()}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-book-open fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Due Soon</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" 
+                                                 th:text="${dueSoonCount}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-danger shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                                Overdue</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" 
+                                                 th:text="${overdueCount}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Total Borrowed</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" 
+                                                 th:text="${totalBorrowed}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-history fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Loans Table -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Active Loans</h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${activeLoans.isEmpty()}" class="text-center py-4">
+                                <i class="fas fa-book fa-3x text-gray-300 mb-3"></i>
+                                <p class="text-muted">You don't have any active loans</p>
+                                <a th:href="@{/books}" class="btn btn-primary">Browse Books</a>
+                            </div>
+                            
+                            <div th:unless="${activeLoans.isEmpty()}" class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Book</th>
+                                            <th>Author(s)</th>
+                                            <th>Loan Date</th>
+                                            <th>Due Date</th>
+                                            <th>Days Left</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="loan : ${activeLoans}">
+                                            <td>
+                                                <a th:href="@{/books/detail/{isbn}(isbn=${loan.book.isbn})}" 
+                                                   th:text="${loan.book.title}">Book Title</a>
+                                            </td>
+                                            <td>
+                                                <span th:each="author, iterStat : ${loan.book.authors}">
+                                                    <span th:text="${author.name}">Author</span>
+                                                    <span th:unless="${iterStat.last}">, </span>
+                                                </span>
+                                            </td>
+                                            <td th:text="${#temporals.format(loan.loanDate, 'dd/MM/yyyy')}">Date</td>
+                                            <td th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}">Date</td>
+                                            <td>
+                                                <span th:if="${loan.dueDate.isAfter(T(java.time.LocalDateTime).now())}"
+                                                      th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), loan.dueDate)}">
+                                                    Days
+                                                </span>
+                                                <span th:unless="${loan.dueDate.isAfter(T(java.time.LocalDateTime).now())}"
+                                                      class="text-danger" 
+                                                      th:text="${'Overdue by ' + T(java.time.temporal.ChronoUnit).DAYS.between(loan.dueDate, T(java.time.LocalDateTime).now()) + ' days'}">
+                                                    Overdue
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-warning" 
+                                                      th:if="${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), loan.dueDate) <= 3 
+                                                              and loan.dueDate.isAfter(T(java.time.LocalDateTime).now())}">
+                                                    Due Soon
+                                                </span>
+                                                <span class="badge badge-danger" 
+                                                      th:if="${loan.dueDate.isBefore(T(java.time.LocalDateTime).now())}">
+                                                    Overdue
+                                                </span>
+                                                <span class="badge badge-success" 
+                                                      th:if="${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), loan.dueDate) > 3}">
+                                                    Active
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" 
+                                                        th:onclick="'renewLoan(' + ${loan.loanId} + ')'"
+                                                        th:disabled="${loan.renewalCount >= 2}">
+                                                    <i class="fas fa-redo"></i> Renew
+                                                    <span th:if="${loan.renewalCount > 0}" 
+                                                          th:text="'(' + ${loan.renewalCount} + '/2)'"></span>
+                                                </button>
+                                                <a th:href="@{/books/detail/{isbn}(isbn=${loan.book.isbn})}" 
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-star"></i> Rate
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loan History -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Recent History</h6>
+                            <a th:href="@{/loans/history}" class="btn btn-sm btn-primary">View Full History</a>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${recentHistory.isEmpty()}" class="text-center py-4">
+                                <p class="text-muted">No loan history yet</p>
+                            </div>
+                            
+                            <div th:unless="${recentHistory.isEmpty()}" class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Book</th>
+                                            <th>Loan Date</th>
+                                            <th>Return Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="loan : ${recentHistory}" th:if="${loanStat.index < 5}">
+                                            <td th:text="${loan.book.title}">Book Title</td>
+                                            <td th:text="${#temporals.format(loan.loanDate, 'dd/MM/yyyy')}">Date</td>
+                                            <td th:text="${loan.returnDate != null ? #temporals.format(loan.returnDate, 'dd/MM/yyyy') : '-'}">Date</td>
+                                            <td>
+                                                <span class="badge badge-success" th:if="${loan.status.name() == 'RETURNED'}">Returned</span>
+                                                <span class="badge badge-danger" th:if="${loan.status.name() == 'LOST'}">Lost</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+
+    <!-- Renew Modal -->
+    <div class="modal fade" id="renewModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Renew Loan</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to renew this loan? The new due date will be extended by 14 days.</p>
+                    <p class="text-muted">Note: You can renew a book maximum 2 times.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <form id="renewForm" method="post" th:action="@{/loans/renew}" style="display: inline;">
+                        <input type="hidden" name="loanId" id="renewLoanId">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-primary">Renew</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <div th:replace="~{fragments/logout-modal :: logout-modal}"></div>
+
+    <!-- Scripts -->
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
+    <script th:src="@{/js/sb-admin-2.min.js}"></script>
+    
+    <script>
+        function renewLoan(loanId) {
+            $('#renewLoanId').val(loanId);
+            $('#renewModal').modal('show');
+        }
+    </script>
+</body>
+</html>

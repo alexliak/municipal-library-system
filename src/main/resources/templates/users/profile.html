@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{fragments/header :: headerSimple}">
+    <title>My Profile - Library Management System</title>
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul th:replace="fragments/sidebar :: sidebar"></ul>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav th:replace="fragments/navbar :: navbar"></nav>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">My Profile</h1>
+
+                    <!-- Success/Error Messages -->
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle"></i>
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <!-- Profile Information -->
+                        <div class="col-lg-8">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Profile Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form th:action="@{/users/profile}" method="post" th:object="${user}">
+                                        <div class="form-group">
+                                            <label for="username">Username</label>
+                                            <input type="text" class="form-control" id="username" 
+                                                   th:value="${user.username}" disabled>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="fullName">Full Name</label>
+                                            <input type="text" class="form-control" id="fullName" 
+                                                   name="fullName" th:value="${user.fullName}" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="email">Email Address</label>
+                                            <input type="email" class="form-control" id="email" 
+                                                   name="email" th:value="${user.email}" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="phone">Phone Number</label>
+                                            <input type="tel" class="form-control" id="phone" 
+                                                   name="phone" th:value="${user.phone}">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="address">Address</label>
+                                            <textarea class="form-control" id="address" name="address" 
+                                                      rows="3" th:text="${user.address}"></textarea>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Update Profile
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Change Password -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Change Password</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form th:action="@{/users/change-password}" method="post">
+                                        <div class="form-group">
+                                            <label for="oldPassword">Current Password</label>
+                                            <input type="password" class="form-control" id="oldPassword" 
+                                                   name="oldPassword" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="newPassword">New Password</label>
+                                            <input type="password" class="form-control" id="newPassword" 
+                                                   name="newPassword" required minlength="6">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Confirm New Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword" 
+                                                   name="confirmPassword" required minlength="6">
+                                        </div>
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-key"></i> Change Password
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="col-lg-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Account Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 15rem;" 
+                                             src="/img/undraw_profile.svg" alt="Profile">
+                                    </div>
+                                    
+                                    <p><strong>Member ID:</strong> <span th:text="${user.userId}">ID</span></p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge badge-success" th:if="${user.enabled}">Active</span>
+                                        <span class="badge badge-danger" th:unless="${user.enabled}">Inactive</span>
+                                    </p>
+                                    <p><strong>Roles:</strong></p>
+                                    <ul class="list-unstyled">
+                                        <li th:each="role : ${user.roles}">
+                                            <span class="badge badge-primary" th:text="${role.name.replace('ROLE_', '')}">Role</span>
+                                        </li>
+                                    </ul>
+                                    <p><strong>Member Since:</strong> 
+                                        <span th:text="${user.createdAt != null ? #dates.format(user.createdAt, 'MMMM dd, yyyy') : 'N/A'}">Date</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">My Library Stats</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center mb-3">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Books Borrowed</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">24</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row no-gutters align-items-center mb-3">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Currently Reading</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">2</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-book-reader fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Books Rated</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">15</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer th:replace="fragments/footer :: footer"></footer>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/sb-admin-2.min.js"></script>
+
+    <script>
+        // Password validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = this.value;
+            
+            if (password !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

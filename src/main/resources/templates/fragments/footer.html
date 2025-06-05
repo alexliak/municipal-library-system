@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Footer Fragment -->
+    <footer th:fragment="footer" class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright &copy; Municipal Library <span th:text="${#temporals.year(#temporals.createNow())}">2024</span></span>
+                <br>
+                <small class="text-muted">Developed for SWE6002 Enterprise Systems Development</small>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

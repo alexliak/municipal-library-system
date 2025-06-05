@@ -1,0 +1,170 @@
+/* Custom CSS for Municipal Library */
+
+/* Login Page Background */
+.bg-login-image {
+    background: url('/img/library-login.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+/* Library Brand Colors */
+:root {
+    --library-primary: #4e73df;
+    --library-success: #1cc88a;
+    --library-info: #36b9cc;
+    --library-warning: #f6c23e;
+    --library-danger: #e74a3b;
+}
+
+/* Book Cover Styling */
+.book-cover {
+    width: 100%;
+    max-width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.book-cover-small {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 3px;
+}
+
+/* Rating Stars */
+.rating-stars {
+    color: #f6c23e;
+}
+
+.rating-stars .far {
+    color: #e3e6f0;
+}
+
+/* Status Badges */
+.badge-overdue {
+    background-color: #e74a3b;
+    color: white;
+}
+
+.badge-due-soon {
+    background-color: #f6c23e;
+    color: #5a5c69;
+}
+
+/* Dashboard Cards Animation */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Table Hover Effect */
+.table-hover tbody tr:hover {
+    background-color: rgba(78, 115, 223, 0.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Book Grid View (Alternative to Table) */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.book-card {
+    border: 1px solid #e3e6f0;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.book-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+/* Notification Bell Animation */
+.fa-bell {
+    animation: bell-ring 2s ease-in-out infinite;
+}
+
+@keyframes bell-ring {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(10deg); }
+    20%, 40% { transform: rotate(-10deg); }
+    50% { transform: rotate(0deg); }
+}
+
+/* Loading Spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--library-primary);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar, .navbar, .footer, .btn, .no-print {
+        display: none !important;
+    }
+    
+    .container-fluid {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .book-cover {
+        max-width: 150px;
+        height: 225px;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    /* Add dark mode styles here if needed */
+}

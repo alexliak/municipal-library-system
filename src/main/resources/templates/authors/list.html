@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <div th:replace="~{fragments/header :: header('Authors')}"></div>
+    <title>Authors - Library Management System</title>
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Authors Management</h1>
+                        <a th:href="@{/authors/add}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" 
+                           sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+                            <i class="fas fa-plus fa-sm text-white-50"></i> Add New Author
+                        </a>
+                    </div>
+
+                    <!-- Alert Messages -->
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <!-- Content Row -->
+                    <div class="row">
+
+                        <!-- Total Authors Card -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Total Authors</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalAuthors ?: authors.size()}">0</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- DataTables Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Authors List</h6>
+                        </div>
+                        <div class="card-body">
+                            <!-- Search Form -->
+                            <div class="mb-3">
+                                <form th:action="@{/authors/search}" method="get" class="form-inline">
+                                    <div class="form-group mr-2">
+                                        <input type="text" name="query" class="form-control" 
+                                               placeholder="Search by author name..."
+                                               th:value="${searchQuery}">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Nationality</th>
+                                            <th>Birth Date</th>
+                                            <th>Books</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Nationality</th>
+                                            <th>Birth Date</th>
+                                            <th>Books</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        <tr th:each="author : ${authors}">
+                                            <td th:text="${author.authorId}">1</td>
+                                            <td>
+                                                <a th:href="@{/authors/{id}(id=${author.authorId})}" 
+                                                   th:text="${author.name}">Author Name</a>
+                                            </td>
+                                            <td th:text="${author.nationality ?: 'Not specified'}">Nationality</td>
+                                            <td th:text="${author.birthDate != null ? #temporals.format(author.birthDate, 'dd/MM/yyyy') : 'Not specified'}">Birth Date</td>
+                                            <td>
+                                                <span class="badge badge-secondary" th:text="${#lists.size(author.books)}">0</span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/authors/{id}(id=${author.authorId})}" 
+                                                   class="btn btn-info btn-circle btn-sm" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                
+                                                <span sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+                                                    <a th:href="@{/authors/edit/{id}(id=${author.authorId})}" 
+                                                       class="btn btn-warning btn-circle btn-sm" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form th:action="@{/authors/delete/{id}(id=${author.authorId})}" 
+                                                          method="post" class="d-inline"
+                                                          onsubmit="return confirm('Are you sure? This will not delete associated books.');">
+                                                        <button type="submit" class="btn btn-danger btn-circle btn-sm" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div th:if="${#lists.isEmpty(authors)}" class="text-center py-4">
+                                <p class="text-muted">No authors found.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div th:replace="~{fragments/logout-modal :: logout-modal}"></div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="/js/demo/datatables-demo.js"></script>
+
+</body>
+
+</html>

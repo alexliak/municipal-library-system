@@ -147,10 +147,10 @@ municipal-library-system/
 
 ### Default Users
 | Username | Password | Role |
-|----------|----------|------|
-| admin | Admin123! | ADMIN |
-| librarian | Lib123! | LIBRARIAN |
-| john.doe | Member123! | MEMBER |
+|----------|---------|------|
+| admin | Admin123 | ADMIN |
+| librarian | Lib123 | LIBRARIAN |
+| john.doe | Member123 | MEMBER |
 
 ## Key Features Demonstration
 

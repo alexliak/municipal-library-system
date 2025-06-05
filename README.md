@@ -146,11 +146,11 @@ municipal-library-system/
    - HTTPS: https://localhost:8443
 
 ### Default Users
-| Username | Password | Role |
-|----------|---------|------|
-| admin | Admin123 | ADMIN |
-| librarian | Lib123 | LIBRARIAN |
-| john.doe | Member123 | MEMBER |
+| Username  | Password     | Role |
+|-----------|--------------|------|
+| admin     | admin123     | ADMIN |
+| librarian | librarian123 | LIBRARIAN |
+| member    | member123    | MEMBER |
 
 ## Key Features Demonstration
 

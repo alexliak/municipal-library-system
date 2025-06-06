@@ -32,10 +32,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Force HTTPS
-            .requiresChannel(channel -> channel
-                .anyRequest().requiresSecure()
-            )
+            // Force HTTPS (disabled for development)
+            // .requiresChannel(channel -> channel
+            //     .anyRequest().requiresSecure()
+            // )
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/login", "/register", "/test-password", "/error", "/test").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/vendor/**", "/img/**").permitAll()

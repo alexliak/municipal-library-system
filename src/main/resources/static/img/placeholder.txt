@@ -1,0 +1,3 @@
+Image placeholders - replace with actual images:
+- undraw_reading.svg
+- undraw_profile.svg

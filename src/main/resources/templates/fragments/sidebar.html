@@ -76,7 +76,7 @@
                     <h6 class="collapse-header">Loan Management:</h6>
                     <a class="collapse-item" th:href="@{/loans}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">All Loans</a>
                     <a class="collapse-item" th:href="@{/loans/checkout}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">Checkout Book</a>
-                    <a class="collapse-item" th:href="@{/loans/my-loans}" sec:authorize="hasRole('MEMBER')">My Loans</a>
+                    <a class="collapse-item" th:href="@{/loans/my}" sec:authorize="hasRole('MEMBER')">My Loans</a>
                     <a class="collapse-item" th:href="@{/loans/overdue}" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">Overdue Books</a>
                 </div>
             </div>
@@ -140,7 +140,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/loans/my-loans}">
+                <a class="nav-link" th:href="@{/loans/my}">
                     <i class="fas fa-fw fa-book-reader"></i>
                     <span>My Loans</span>
                 </a>

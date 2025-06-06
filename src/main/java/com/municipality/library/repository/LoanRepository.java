@@ -94,4 +94,8 @@ public interface LoanRepository extends JpaRepository<Loan, Integer> {
     
     @Query("SELECT l.book.genre, COUNT(l) FROM Loan l WHERE l.user.userId = :userId GROUP BY l.book.genre ORDER BY COUNT(l) DESC")
     List<Object[]> findFavoriteGenreForUser(@Param("userId") Integer userId);
+    
+    // Eager loading for member dashboard
+    @Query("SELECT l FROM Loan l JOIN FETCH l.book b LEFT JOIN FETCH b.authors WHERE l.user = :user AND l.status = :status")
+    List<Loan> findByUserAndStatusWithBooksAndAuthors(@Param("user") User user, @Param("status") LoanStatus status);
 }

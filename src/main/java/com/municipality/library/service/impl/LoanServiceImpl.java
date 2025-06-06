@@ -139,7 +139,7 @@ public class LoanServiceImpl implements LoanService {
     public List<Loan> findActiveLoansForUser(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        return loanRepository.findByUserAndStatus(user, LoanStatus.ACTIVE);
+        return loanRepository.findByUserAndStatusWithBooksAndAuthors(user, LoanStatus.ACTIVE);
     }
     
     @Override

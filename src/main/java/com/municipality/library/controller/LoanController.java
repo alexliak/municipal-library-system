@@ -47,7 +47,9 @@ public class LoanController {
     // Show checkout form for specific book (for members)
     @GetMapping("/checkout/{isbn}")
     @PreAuthorize("hasRole('MEMBER')")
-    public String showCheckoutForm(@PathVariable String isbn, ModelMap model) {
+    public String showCheckoutForm(@PathVariable String isbn, 
+                                  @AuthenticationPrincipal UserDetails userDetails,
+                                  ModelMap model) {
         Optional<Book> bookOpt = bookService.findById(isbn);
         if (!bookOpt.isPresent()) {
             return "redirect:/books";
@@ -57,6 +59,13 @@ public class LoanController {
         if (!bookService.isAvailable(isbn)) {
             model.addAttribute("error", "This book is not available for checkout");
             return "redirect:/books/" + isbn;
+        }
+        
+        // Get user's current loan count
+        Optional<User> userOpt = userService.findByUsername(userDetails.getUsername());
+        if (userOpt.isPresent()) {
+            int activeLoans = loanService.countActiveLoansForUser(userOpt.get().getUserId());
+            model.addAttribute("activeLoansCount", activeLoans);
         }
         
         model.addAttribute("book", book);
@@ -132,7 +141,7 @@ public class LoanController {
             Loan loan = loanService.checkoutBook(user, book, dueDate);
             
             redirectAttributes.addFlashAttribute("successMessage", 
-                "Book checked out successfully! Due date: " + loan.getDueDate());
+                "Book checked out successfully! Due date: " + loan.getDueDate().toLocalDate());
             return "redirect:/loans/my";
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

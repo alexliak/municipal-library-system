@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "books")
@@ -101,5 +102,16 @@ public class Book {
             .mapToInt(BookRating::getRating)
             .average()
             .orElse(0.0);
+    }
+    
+    // Get authors as comma-separated string
+    public String getAuthorsString() {
+        if (authors.isEmpty()) {
+            return "Unknown Author";
+        }
+        return authors.stream()
+            .map(Author::getName)
+            .reduce((a, b) -> a + ", " + b)
+            .orElse("Unknown Author");
     }
 }

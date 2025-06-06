@@ -121,6 +121,9 @@ public class LoanController {
     public String checkoutBook(@RequestParam String isbn,
                              @AuthenticationPrincipal UserDetails userDetails,
                              RedirectAttributes redirectAttributes) {
+        System.out.println("=== MEMBER CHECKOUT DEBUG ===");
+        System.out.println("ISBN: " + isbn);
+        System.out.println("User: " + userDetails.getUsername());
         try {
             Optional<User> userOpt = userService.findByUsername(userDetails.getUsername());
             if (!userOpt.isPresent()) {

@@ -1,0 +1,157 @@
+@startuml Municipal_Library_ERD
+!theme plain
+skinparam linetype ortho
+skinparam ranksep 40
+skinparam nodesep 25
+
+title Municipal Library System - Entity Relationship Diagram
+footer Database schema from https://github.com/alexliak/municipal-library-system
+
+' Entity definitions with attributes
+entity "users" as users {
+    * user_id : INTEGER <<PK>> <<AUTO_INCREMENT>>
+    --
+    * username : VARCHAR(50) <<UNIQUE>>
+    * password : VARCHAR(255)
+    * email : VARCHAR(100) <<UNIQUE>>
+    full_name : VARCHAR(100)
+    phone : VARCHAR(20)
+    address : TEXT
+    * created_at : TIMESTAMP
+    * enabled : BOOLEAN
+}
+
+entity "roles" as roles {
+    * role_id : INTEGER <<PK>> <<AUTO_INCREMENT>>
+    --
+    * name : VARCHAR(50) <<UNIQUE>>
+    description : VARCHAR(255)
+}
+
+entity "user_roles" as user_roles {
+    * user_id : INTEGER <<FK>>
+    * role_id : INTEGER <<FK>>
+    --
+    PRIMARY KEY (user_id, role_id)
+}
+
+entity "books" as books {
+    * isbn : VARCHAR(13) <<PK>>
+    --
+    * title : VARCHAR(255)
+    publication_date : DATE
+    * genre : VARCHAR(50)
+    summary : TEXT
+    cover_image_url : VARCHAR(500)
+    * total_copies : INTEGER
+    * available_copies : INTEGER
+    INDEX idx_title (title)
+    INDEX idx_genre (genre)
+}
+
+entity "authors" as authors {
+    * author_id : INTEGER <<PK>> <<AUTO_INCREMENT>>
+    --
+    * name : VARCHAR(100)
+    biography : TEXT
+    birth_date : DATE
+    nationality : VARCHAR(50)
+    INDEX idx_name (name)
+}
+
+entity "book_authors" as book_authors {
+    * book_isbn : VARCHAR(13) <<FK>>
+    * author_id : INTEGER <<FK>>
+    --
+    PRIMARY KEY (book_isbn, author_id)
+}
+
+entity "loans" as loans {
+    * loan_id : INTEGER <<PK>> <<AUTO_INCREMENT>>
+    --
+    * user_id : INTEGER <<FK>>
+    * book_isbn : VARCHAR(13) <<FK>>
+    * loan_date : DATE
+    * due_date : DATE
+    return_date : DATE
+    * status : ENUM('ACTIVE','RETURNED','OVERDUE','LOST')
+    INDEX idx_user_status (user_id, status)
+    INDEX idx_due_date (due_date)
+}
+
+entity "book_ratings" as book_ratings {
+    * rating_id : INTEGER <<PK>> <<AUTO_INCREMENT>>
+    --
+    * user_id : INTEGER <<FK>>
+    * book_isbn : VARCHAR(13) <<FK>>
+    * rating : INTEGER CHECK (rating >= 1 AND rating <= 5)
+    review : TEXT
+    * created_at : TIMESTAMP
+    UNIQUE KEY uk_user_book (user_id, book_isbn)
+}
+
+' Relationships with cardinality
+users ||--o{ user_roles : "has"
+roles ||--o{ user_roles : "assigned to"
+
+users ||--o{ loans : "borrows"
+books ||--o{ loans : "is borrowed"
+
+users ||--o{ book_ratings : "rates"
+books ||--o{ book_ratings : "receives rating"
+
+books ||--o{ book_authors : "written by"
+authors ||--o{ book_authors : "writes"
+
+' Notes about constraints
+note right of user_roles
+    Junction table for
+    many-to-many relationship
+    between users and roles
+end note
+
+note right of book_authors
+    Junction table for
+    many-to-many relationship
+    between books and authors
+end note
+
+note bottom of loans
+    status changes:
+    ACTIVE -> RETURNED (normal flow)
+    ACTIVE -> OVERDUE (automated)
+    OVERDUE -> RETURNED (late return)
+    Any -> LOST (manual marking)
+end note
+
+note left of books
+    available_copies <= total_copies
+    Decremented on checkout
+    Incremented on return
+end note
+
+note right of users
+    password stored as
+    BCrypt hash
+    enabled flag for
+    account activation
+end note
+
+' Additional schema information
+note top of users
+    <b>INDEXES:</b>
+    - username (UNIQUE)
+    - email (UNIQUE)
+    
+    <b>TRIGGERS:</b>
+    - Set created_at on INSERT
+end note
+
+note top of loans
+    <b>BUSINESS RULES:</b>
+    - Due date = loan date + 14 days
+    - Only one active loan per user per book
+    - Overdue status set by scheduled task
+end note
+
+@enduml

@@ -1,0 +1,87 @@
+@startuml Municipal_Library_Login_Sequence
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title Municipal Library System - Login Process Sequence Diagram
+footer Implementation from https://github.com/alexliak/municipal-library-system
+
+actor User
+participant "Browser" as Browser
+participant "SecurityFilter" as Filter
+participant "UserController" as Controller
+participant "UserService" as Service
+participant "UserRepository" as Repository
+participant "PasswordEncoder" as Encoder
+database "MySQL" as DB
+
+== Login Page Request ==
+User -> Browser: Navigate to /login
+Browser -> Filter: GET /login
+Filter -> Filter: Check if authenticated
+Filter -> Controller: Forward to login()
+Controller -> Browser: Return login.html
+Browser -> User: Display login form
+
+== Login Authentication ==
+User -> Browser: Enter credentials
+User -> Browser: Submit form
+Browser -> Filter: POST /login\n(username, password)
+Filter -> Filter: Extract credentials
+
+Filter -> Service: loadUserByUsername(username)
+Service -> Repository: findByUsername(username)
+Repository -> DB: SELECT * FROM users\nWHERE username = ?
+DB --> Repository: User data
+Repository --> Service: Optional<User>
+
+alt User found
+    Service -> Service: Check if enabled
+    Service -> Encoder: matches(inputPassword,\nstoredPassword)
+    Encoder -> Encoder: BCrypt validation
+    Encoder --> Service: boolean match
+    
+    alt Password matches
+        Service -> Repository: Load roles
+        Repository -> DB: SELECT r.* FROM roles r\nJOIN user_roles ur\nON r.role_id = ur.role_id\nWHERE ur.user_id = ?
+        DB --> Repository: Role data
+        Repository --> Service: Set<Role>
+        Service -> Service: Create UserDetails
+        Service --> Filter: UserDetails
+        
+        Filter -> Filter: Create Authentication
+        Filter -> Filter: Set SecurityContext
+        Filter -> Controller: Redirect based on role
+        
+        alt ROLE_ADMIN
+            Controller -> Browser: Redirect to /admin/dashboard
+        else ROLE_LIBRARIAN
+            Controller -> Browser: Redirect to /librarian/dashboard
+        else ROLE_MEMBER
+            Controller -> Browser: Redirect to /member/dashboard
+        end
+        
+        Browser -> User: Display dashboard
+        
+    else Password doesn't match
+        Service --> Filter: throw BadCredentialsException
+        Filter -> Controller: Forward to login?error=true
+        Controller -> Browser: Return login.html\nwith error message
+        Browser -> User: Display "Invalid credentials"
+    end
+    
+else User not found
+    Service --> Filter: throw UsernameNotFoundException
+    Filter -> Controller: Forward to login?error=true
+    Controller -> Browser: Return login.html\nwith error message
+    Browser -> User: Display "Invalid credentials"
+end
+
+== Session Management ==
+note over Filter, Browser
+    Spring Security creates HTTP session
+    Sets remember-me cookie if requested
+    JSESSIONID cookie sent to browser
+end note
+
+@enduml

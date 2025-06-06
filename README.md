@@ -146,11 +146,11 @@ municipal-library-system/
    - HTTPS: https://localhost:8443
 
 ### Default Users
-| Username  | Password     | Role |
-|-----------|--------------|------|
-| admin     | admin123     | ADMIN |
-| librarian | librarian123 | LIBRARIAN |
-| member    | member123    | MEMBER |
+| Username | Password | Role |
+|----------|----------|------|
+| admin | Admin123! | ADMIN |
+| librarian | Lib123! | LIBRARIAN |
+| john.doe | Member123! | MEMBER |
 
 ## Key Features Demonstration
 
@@ -173,6 +173,24 @@ municipal-library-system/
 - Check loan history
 - Rate and review books
 - Update profile information
+
+## Documentation
+
+### Portfolio Documentation
+- **[Requirements Backlog](docs/portfolio/requirements-backlog.md)** - User stories with priorities and acceptance criteria
+- **[Design Decisions](docs/portfolio/design-decisions.md)** - Architectural and technology choices explained
+- **[Security Analysis](docs/portfolio/security-analysis.md)** - Comprehensive security assessment
+- **[User Manual](docs/portfolio/user-manual.md)** - Complete guide for all user roles
+
+### UML Diagrams
+- **[UML Diagrams](docs/uml/)** - All system diagrams in PlantUML format
+  - Use Case Diagram
+  - Class Diagram
+  - Sequence Diagrams (Login & Checkout)
+  - Entity Relationship Diagram
+
+### Screenshots
+- **[Screenshots](docs/screenshots/)** - System functionality demonstrations
 
 ## API Endpoints Overview
 - `/login` - Authentication
@@ -212,5 +230,5 @@ This project is developed for academic purposes as part of the SWE6002 course as
 
 ## Acknowledgments
 - Course Instructor: Spyridon Mavros
-- University of Bolton
+- University of Greater Manchester ex Bolton
 - New York College

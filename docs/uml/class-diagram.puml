@@ -1,0 +1,226 @@
+@startuml Municipal_Library_Class_Diagram
+!theme plain
+skinparam classBackgroundColor #F5F5F5
+skinparam classBorderColor #333333
+skinparam classAttributeIconSize 0
+
+title Municipal Library Management System - Class Diagram
+footer Based on actual implementation at https://github.com/alexliak/municipal-library-system
+
+' Entity Classes
+class User {
+    - userId: Integer
+    - username: String
+    - password: String
+    - email: String
+    - fullName: String
+    - phone: String
+    - address: String
+    - createdAt: LocalDateTime
+    - enabled: boolean
+    - roles: Set<Role>
+    - loans: Set<Loan>
+    + addRole(role: Role): void
+    + removeRole(role: Role): void
+}
+
+class Role {
+    - roleId: Integer
+    - name: String
+    - description: String
+    - users: Set<User>
+}
+
+class Book {
+    - isbn: String {PK}
+    - title: String
+    - publicationDate: LocalDate
+    - genre: String
+    - summary: String
+    - coverImageUrl: String
+    - totalCopies: Integer
+    - availableCopies: Integer
+    - authors: Set<Author>
+    - loans: Set<Loan>
+    - ratings: Set<BookRating>
+    + addAuthor(author: Author): void
+    + removeAuthor(author: Author): void
+    + isAvailable(): boolean
+}
+
+class Author {
+    - authorId: Integer
+    - name: String
+    - biography: String
+    - birthDate: LocalDate
+    - nationality: String
+    - books: Set<Book>
+    + addBook(book: Book): void
+    + removeBook(book: Book): void
+}
+
+class Loan {
+    - loanId: Integer
+    - loanDate: LocalDate
+    - dueDate: LocalDate
+    - returnDate: LocalDate
+    - status: LoanStatus
+    - user: User
+    - book: Book
+    + isOverdue(): boolean
+    + markAsReturned(): void
+}
+
+enum LoanStatus {
+    ACTIVE
+    RETURNED
+    OVERDUE
+    LOST
+}
+
+class BookRating {
+    - ratingId: Integer
+    - rating: Integer
+    - review: String
+    - createdAt: LocalDateTime
+    - user: User
+    - book: Book
+}
+
+' Service Classes
+class UserService {
+    - userRepository: UserRepository
+    - passwordEncoder: PasswordEncoder
+    + createUser(userDTO: UserDTO): User
+    + findByUsername(username: String): User
+    + updateProfile(userId: Integer, updates: UserDTO): User
+    + assignRole(userId: Integer, role: Role): void
+    + getTotalUsers(): long
+}
+
+class BookService {
+    - bookRepository: BookRepository
+    - authorRepository: AuthorRepository
+    + save(book: Book): Book
+    + findByIsbn(isbn: String): Optional<Book>
+    + searchBooks(criteria: SearchCriteria): List<Book>
+    + updateInventory(isbn: String, quantity: int): void
+    + getMostBorrowedBooks(limit: int): List<Book>
+}
+
+class LoanService {
+    - loanRepository: LoanRepository
+    - bookService: BookService
+    - emailService: EmailService
+    + checkoutBook(userId: Integer, isbn: String): Loan
+    + returnBook(loanId: Integer): Loan
+    + findOverdueLoans(): List<Loan>
+    + updateOverdueStatus(): void
+    + getUserLoanHistory(userId: Integer): List<Loan>
+}
+
+class AuthorService {
+    - authorRepository: AuthorRepository
+    + save(author: Author): Author
+    + findById(id: Integer): Optional<Author>
+    + searchByName(name: String): List<Author>
+    + addBookToAuthor(authorId: Integer, book: Book): Author
+}
+
+' Repository Interfaces
+interface UserRepository {
+    + findByUsername(username: String): Optional<User>
+    + findByUsernameAndPassword(username: String, password: String): Optional<User>
+    + existsByUsername(username: String): boolean
+    + countByRoles_Name(roleName: String): long
+}
+
+interface BookRepository {
+    + findByIsbn(isbn: String): Optional<Book>
+    + findByTitleContainingIgnoreCase(title: String): List<Book>
+    + findByGenre(genre: String): List<Book>
+    + findByAvailableCopiesGreaterThan(copies: int): List<Book>
+    + getBooksByGenreCount(): List<Object[]>
+}
+
+interface LoanRepository {
+    + findByUser(user: User): List<Loan>
+    + findByStatusAndDueDateBefore(status: LoanStatus, date: LocalDate): List<Loan>
+    + findActiveLoansCount(): long
+    + findMostBorrowedBooks(pageable: Pageable): List<Object[]>
+}
+
+interface AuthorRepository {
+    + findByNameContainingIgnoreCase(name: String): List<Author>
+    + findByNationality(nationality: String): List<Author>
+    + findAuthorsWithBookCount(minBooks: int): List<Author>
+}
+
+' Controller Classes
+class UserController {
+    - userService: UserService
+    + showLoginForm(): String
+    + login(username: String, password: String): String
+    + showRegistrationForm(model: Model): String
+    + registerUser(userDTO: UserDTO): String
+    + viewProfile(principal: Principal, model: Model): String
+}
+
+class BookController {
+    - bookService: BookService
+    - authorService: AuthorService
+    + listBooks(model: Model): String
+    + viewBook(isbn: String, model: Model): String
+    + showAddForm(model: Model): String
+    + addBook(book: Book): String
+    + searchBooks(query: String, model: Model): String
+}
+
+class LoanController {
+    - loanService: LoanService
+    - userService: UserService
+    + showCheckoutForm(model: Model): String
+    + checkoutBook(userId: Integer, isbn: String): String
+    + returnBook(loanId: Integer): String
+    + viewMyLoans(principal: Principal, model: Model): String
+    + viewAllLoans(model: Model): String
+}
+
+class HomeController {
+    - userService: UserService
+    - bookService: BookService
+    - loanService: LoanService
+    + showDashboard(principal: Principal, model: Model): String
+    + showAdminDashboard(model: Model): String
+    + showLibrarianDashboard(model: Model): String
+    + showMemberDashboard(model: Model): String
+}
+
+' Relationships
+User "1" -- "*" Loan : has >
+User "*" -- "*" Role : assigned >
+Book "1" -- "*" Loan : involved in >
+Book "*" -- "*" Author : written by >
+Book "1" -- "*" BookRating : has >
+User "1" -- "*" BookRating : rates >
+
+' Dependencies
+UserService ..> UserRepository : uses
+BookService ..> BookRepository : uses
+LoanService ..> LoanRepository : uses
+AuthorService ..> AuthorRepository : uses
+
+UserController ..> UserService : uses
+BookController ..> BookService : uses
+LoanController ..> LoanService : uses
+HomeController ..> UserService : uses
+HomeController ..> BookService : uses
+HomeController ..> LoanService : uses
+
+' Inheritance
+UserRepository --|> JpaRepository
+BookRepository --|> JpaRepository
+LoanRepository --|> JpaRepository
+AuthorRepository --|> JpaRepository
+
+@enduml

@@ -1,0 +1,145 @@
+@startuml Municipal_Library_Use_Case_Diagram
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam usecaseBackgroundColor #E6F3FF
+skinparam actorBackgroundColor #FFE6E6
+skinparam packageBorderColor #4A90E2
+skinparam usecaseBorderColor #4A90E2
+skinparam actorBorderColor #E74C3C
+
+title Municipal Library Management System - Use Case Diagram
+footer Generated from https://github.com/alexliak/municipal-library-system
+
+' Actors
+actor "Guest" as guest #FFE6E6
+actor "Member" as member #FFE6E6
+actor "Librarian" as librarian #FFEAA7
+actor "Administrator" as admin #D63031
+
+' System boundary
+package "Municipal Library System" {
+    ' Authentication Use Cases
+    usecase "Login" as UC1
+    usecase "Logout" as UC2
+    usecase "View Dashboard" as UC3
+    
+    ' Book Management Use Cases
+    usecase "Search Books" as UC4
+    usecase "View Book Details" as UC5
+    usecase "Add Book" as UC6
+    usecase "Edit Book" as UC7
+    usecase "Delete Book" as UC8
+    usecase "Manage Book Inventory" as UC9
+    
+    ' Author Management Use Cases
+    usecase "Search Authors" as UC10
+    usecase "View Author Details" as UC11
+    usecase "Add Author" as UC12
+    usecase "Edit Author" as UC13
+    usecase "Delete Author" as UC14
+    
+    ' Loan Management Use Cases
+    usecase "Checkout Book" as UC15
+    usecase "Return Book" as UC16
+    usecase "View My Loans" as UC17
+    usecase "View All Loans" as UC18
+    usecase "Mark as Overdue" as UC19
+    
+    ' User Management Use Cases
+    usecase "Register New User" as UC20
+    usecase "Manage Users" as UC21
+    usecase "View User Profile" as UC22
+    usecase "Update Profile" as UC23
+    usecase "Assign Roles" as UC24
+    
+    ' Reporting Use Cases
+    usecase "Generate Reports" as UC25
+    usecase "View Statistics" as UC26
+    usecase "Export to PDF" as UC27
+    
+    ' Rating System
+    usecase "Rate Book" as UC28
+    usecase "View Ratings" as UC29
+}
+
+' Guest relationships
+guest --> UC1
+guest --> UC4
+guest --> UC5
+
+' Member inherits from Guest and adds
+member --|> guest
+member --> UC2
+member --> UC3
+member --> UC10
+member --> UC11
+member --> UC17
+member --> UC22
+member --> UC23
+member --> UC28
+member --> UC29
+
+' Librarian inherits from Member and adds
+librarian --|> member
+librarian --> UC6
+librarian --> UC7
+librarian --> UC8
+librarian --> UC9
+librarian --> UC12
+librarian --> UC13
+librarian --> UC14
+librarian --> UC15
+librarian --> UC16
+librarian --> UC18
+librarian --> UC19
+librarian --> UC26
+
+' Administrator inherits from Librarian and adds
+admin --|> librarian
+admin --> UC20
+admin --> UC21
+admin --> UC24
+admin --> UC25
+admin --> UC27
+
+' Include relationships
+UC6 ..> UC12 : <<include>>
+UC7 ..> UC12 : <<include>>
+UC15 ..> UC9 : <<include>>
+UC16 ..> UC9 : <<include>>
+UC25 ..> UC27 : <<include>>
+
+' Extend relationships
+UC18 <.. UC19 : <<extend>>
+UC4 <.. UC5 : <<extend>>
+UC10 <.. UC11 : <<extend>>
+
+' Notes
+note right of UC1
+  Spring Security
+  Form-based authentication
+  BCrypt password validation
+end note
+
+note right of UC15
+  Validates available copies
+  Creates loan record
+  Updates inventory
+end note
+
+note bottom of admin
+  ROLE_ADMIN
+  Full system access
+end note
+
+note bottom of librarian
+  ROLE_LIBRARIAN
+  Library operations
+end note
+
+note bottom of member
+  ROLE_MEMBER
+  Basic access
+end note
+
+@enduml

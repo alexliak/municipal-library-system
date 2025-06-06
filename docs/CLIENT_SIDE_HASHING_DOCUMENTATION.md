@@ -73,4 +73,4 @@ This implementation demonstrates:
 
 ---
 
-*Note: This implementation was created for the SWE6002 Enterprise Systems Development module to demonstrate advanced security concepts in an academic context.*
+*Note: This implementation was created for the SWE6002 Enterprise Systems Development module to demonstrate security concepts in an academic context.*

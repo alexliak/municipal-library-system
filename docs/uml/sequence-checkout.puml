@@ -1,0 +1,109 @@
+@startuml Municipal_Library_Checkout_Sequence
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title Municipal Library System - Book Checkout Process
+footer Implementation from https://github.com/alexliak/municipal-library-system
+
+actor Librarian
+participant "Browser" as Browser
+participant "LoanController" as Controller
+participant "LoanService" as LoanService
+participant "BookService" as BookService
+participant "UserService" as UserService
+participant "LoanRepository" as LoanRepo
+participant "BookRepository" as BookRepo
+database "MySQL" as DB
+
+== Initiate Checkout ==
+Librarian -> Browser: Navigate to checkout
+Browser -> Controller: GET /loans/checkout
+Controller -> UserService: findAllMembers()
+UserService -> DB: SELECT * FROM users u\nJOIN user_roles ur\nWHERE role = 'MEMBER'
+DB --> UserService: Member list
+Controller -> BookService: findAvailableBooks()
+BookService -> BookRepo: findByAvailableCopiesGreaterThan(0)
+BookRepo -> DB: SELECT * FROM books\nWHERE available_copies > 0
+DB --> BookRepo: Available books
+BookRepo --> BookService: List<Book>
+Controller -> Browser: Return checkout.html
+Browser -> Librarian: Display checkout form
+
+== Submit Checkout ==
+Librarian -> Browser: Select member & book
+Librarian -> Browser: Submit checkout
+Browser -> Controller: POST /loans/checkout\n(userId, isbn)
+
+Controller -> LoanService: checkoutBook(userId, isbn)
+
+' Validation Phase
+LoanService -> UserService: findById(userId)
+UserService -> DB: SELECT * FROM users\nWHERE user_id = ?
+DB --> UserService: User
+LoanService -> BookService: findByIsbn(isbn)
+BookService -> BookRepo: findByIsbn(isbn)
+BookRepo -> DB: SELECT * FROM books\nWHERE isbn = ?
+DB --> BookRepo: Book
+BookRepo --> BookService: Optional<Book>
+
+alt Book exists and available
+    LoanService -> LoanService: Validate availability
+    note right: Check availableCopies > 0
+    
+    ' Check existing loans
+    LoanService -> LoanRepo: findByUserAndBookAndStatus(user, book, ACTIVE)
+    LoanRepo -> DB: SELECT * FROM loans\nWHERE user_id = ?\nAND book_isbn = ?\nAND status = 'ACTIVE'
+    DB --> LoanRepo: Existing loans
+    
+    alt No active loan exists
+        ' Create loan
+        LoanService -> LoanService: Create Loan entity
+        note right
+            Loan loan = Loan.builder()
+                .user(user)
+                .book(book)
+                .loanDate(LocalDate.now())
+                .dueDate(LocalDate.now().plusDays(14))
+                .status(LoanStatus.ACTIVE)
+                .build();
+        end note
+        
+        ' Start transaction
+        LoanService -> DB: BEGIN TRANSACTION
+        
+        ' Save loan
+        LoanService -> LoanRepo: save(loan)
+        LoanRepo -> DB: INSERT INTO loans\n(user_id, book_isbn, loan_date,\ndue_date, status)\nVALUES (?, ?, ?, ?, 'ACTIVE')
+        
+        ' Update inventory
+        LoanService -> BookService: decrementAvailableCopies(isbn)
+        BookService -> BookRepo: decrementAvailableCopies(isbn)
+        BookRepo -> DB: UPDATE books\nSET available_copies = available_copies - 1\nWHERE isbn = ?
+        
+        ' Commit transaction
+        LoanService -> DB: COMMIT
+        
+        LoanService --> Controller: Loan created
+        Controller -> Browser: Redirect to /loans\nwith success message
+        Browser -> Librarian: "Book checked out successfully"
+        
+    else Active loan already exists
+        LoanService --> Controller: throw DuplicateLoanException
+        Controller -> Browser: Return error page
+        Browser -> Librarian: "Member already has this book"
+    end
+    
+else Book not available
+    LoanService --> Controller: throw BookNotAvailableException
+    Controller -> Browser: Return error page
+    Browser -> Librarian: "Book is not available"
+end
+
+== Post-Checkout Actions ==
+note over LoanService
+    Scheduled task runs daily to check overdue loans
+    Email notification sent to member (if configured)
+end note
+
+@enduml

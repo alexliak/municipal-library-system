@@ -3,6 +3,7 @@ package com.municipality.library.controller;
 import com.municipality.library.entity.Loan;
 import com.municipality.library.entity.Book;
 import com.municipality.library.entity.User;
+import com.municipality.library.entity.LoanStatus;
 import com.municipality.library.service.LoanService;
 import com.municipality.library.service.BookService;
 import com.municipality.library.service.UserService;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/loans")
@@ -142,11 +144,15 @@ public class LoanController {
             LocalDateTime dueDate = LocalDateTime.now().plusDays(14);
             
             Loan loan = loanService.checkoutBook(user, book, dueDate);
+            System.out.println("Loan created with ID: " + loan.getLoanId());
             
             redirectAttributes.addFlashAttribute("successMessage", 
                 "Book checked out successfully! Due date: " + loan.getDueDate().toLocalDate());
+            System.out.println("Redirecting to /loans/my");
             return "redirect:/loans/my";
         } catch (RuntimeException e) {
+            System.out.println("Error during checkout: " + e.getMessage());
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/books/" + isbn;
         }
@@ -165,8 +171,31 @@ public class LoanController {
         List<Loan> loans = loanService.findLoanHistoryForUser(user.getUserId());
         List<Loan> activeLoans = loanService.findActiveLoansForUser(user.getUserId());
         
+        // Add statistics
+        int dueSoonCount = 0;
+        int overdueCount = 0;
+        int totalBorrowed = loans.size();
+        
+        for (Loan loan : activeLoans) {
+            if (loan.getDueDate().isBefore(LocalDateTime.now())) {
+                overdueCount++;
+            } else if (loan.getDueDate().isBefore(LocalDateTime.now().plusDays(3))) {
+                dueSoonCount++;
+            }
+        }
+        
+        // Get recent history (returned books)
+        List<Loan> recentHistory = loans.stream()
+                .filter(l -> l.getStatus() == LoanStatus.RETURNED)
+                .limit(5)
+                .collect(Collectors.toList());
+        
         model.addAttribute("loans", loans);
         model.addAttribute("activeLoans", activeLoans);
+        model.addAttribute("dueSoonCount", dueSoonCount);
+        model.addAttribute("overdueCount", overdueCount);
+        model.addAttribute("totalBorrowed", totalBorrowed);
+        model.addAttribute("recentHistory", recentHistory);
         return "loans/my-loans";
     }
     

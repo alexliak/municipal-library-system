@@ -11,7 +11,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul th:replace="fragments/sidebar :: sidebar"></ul>
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -20,7 +20,7 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav th:replace="fragments/navbar :: navbar"></nav>
+                <div th:replace="~{fragments/navbar :: navbar}"></div>
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
@@ -129,7 +129,7 @@
                                 <div class="card-body">
                                     <div class="text-center">
                                         <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 15rem;" 
-                                             src="/img/undraw_profile.svg" alt="Profile">
+                                             th:src="@{/img/undraw_profile.svg}" alt="Profile">
                                     </div>
                                     
                                     <p><strong>Member ID:</strong> <span th:text="${user.userId}">ID</span></p>
@@ -144,7 +144,7 @@
                                         </li>
                                     </ul>
                                     <p><strong>Member Since:</strong> 
-                                        <span th:text="${user.createdAt != null ? #dates.format(user.createdAt, 'MMMM dd, yyyy') : 'N/A'}">Date</span>
+                                        <span th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'MMMM dd, yyyy') : 'N/A'}">Date</span>
                                     </p>
                                 </div>
                             </div>
@@ -199,7 +199,7 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer th:replace="fragments/footer :: footer"></footer>
+            <div th:replace="~{fragments/footer :: footer}"></div>
 
         </div>
         <!-- End of Content Wrapper -->
@@ -208,14 +208,14 @@
     <!-- End of Page Wrapper -->
 
     <!-- Bootstrap core JavaScript-->
-    <script src="/vendor/jquery/jquery.min.js"></script>
-    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="/js/sb-admin-2.min.js"></script>
+    <script th:src="@{/js/sb-admin-2.min.js}"></script>
 
     <script>
         // Password validation
